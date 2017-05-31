@@ -1,0 +1,41 @@
+Name:                GameOfLife
+Version:             0.1
+Synopsis:            Conway's Game of Life
+Description:         Conway's Game of Life implemented in Haskell, Snap, React and Websockets
+License:             BSD3
+License-file:        LICENSE
+Copyright:           2017 Steve Testa
+Homepage:            https://github.com/stesta/GameOfLife#readme
+Author:              Steve Testa
+Maintainer:          steve@testasoftware.com
+Stability:           Experimental
+Category:            Web
+Build-type:          Simple
+Cabal-version:       >=1.2
+Extra-Source-Files:  README.md
+
+Executable GameOfLife
+  hs-source-dirs: src
+  main-is: Main.hs
+
+  Build-depends:
+    base,
+    bytestring,
+    containers,
+    heist,
+    lens,
+    map-syntax,
+    monad-control,
+    mtl,
+    snap,
+    snap-core,
+    snap-server,
+    text,
+    time,
+    xmlhtml
+
+  if impl(ghc >= 6.12.0)
+    ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
+                 -fno-warn-unused-do-bind
+  else
+    ghc-options: -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2
