@@ -2,6 +2,7 @@
 
 module Application where
 
+import GameOfLife.Snaplet
 import Control.Lens
 import Snap.Snaplet
 import Snap.Snaplet.Heist
@@ -13,3 +14,5 @@ makeLenses ''App
 
 instance HasHeist App where
     heistLens = subSnaplet heist
+
+type AppHandler = Handler App App

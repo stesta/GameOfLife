@@ -10,6 +10,7 @@ import Snap.Util.FileServe
 
 routes :: [(ByteString, Handler App App ())]
 routes = [ ("/", render "index.tpl")
+         , ("/test", render "text.tpl")
          , ("",  serveDirectory "assets")
          ]
 
