@@ -1,0 +1,41 @@
+body {
+    margin: 18px;
+    font-family: 'Inconsolata', monospace;
+    font-size: 16px;
+    background-color: #009;
+}
+
+form {
+    color: #fff;
+    font-family: 'Inconsolata', monospace;
+    font-size: 16px;
+    margin-top: 6px;
+}
+
+form input {
+    background-color: #009;
+    border: 0px solid #009;
+    color: #fff;
+    font-family: 'Inconsolata', monospace;
+    font-size: 16px;
+    margin: 0px;
+    padding: 0px;
+}
+
+pre {
+    margin: 0px;
+    padding: 0px;
+    display: inline;
+}
+
+pre.stderr {
+    color: #fcc;
+}
+
+pre.stdout {
+    color: #fff;
+}
+
+pre.stdin {
+    color: #ff0;
+}

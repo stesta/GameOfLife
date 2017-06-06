@@ -1,20 +1,31 @@
 module GameOfLife.Core where
 
+--------------------------------------------------------------------------------
 import Control.Monad.State
 import Data.List
 
+
+--------------------------------------------------------------------------------
 type Cell = (Int, Int)
 type Board = [Cell]
 
+
+--------------------------------------------------------------------------------
 isAlive :: Board -> Cell -> Bool
 isAlive board cell = cell `elem` board
 
+
+--------------------------------------------------------------------------------
 neighbors :: Cell -> [Cell]
 neighbors (x,y) = [(x',y') | x' <- [x-1..x+1], y' <- [y-1..y+1], (x',y') /= (x,y)]
 
+
+--------------------------------------------------------------------------------
 aliveNeighborCount :: Board -> Cell -> Int
 aliveNeighborCount board cell = length . filter (isAlive board) . neighbors $ cell 
 
+
+--------------------------------------------------------------------------------
 liveOrDie :: Board -> Cell -> Bool
 liveOrDie board cell 
     | alive && ns == 2     = True
@@ -25,6 +36,8 @@ liveOrDie board cell
         alive = isAlive board cell 
         ns    = aliveNeighborCount board cell
         
+
+--------------------------------------------------------------------------------
 generation :: State Board Board
 generation = do 
     board <- get
@@ -35,6 +48,8 @@ generation = do
     put (board')
     return board 
 
+
+--------------------------------------------------------------------------------
 generations :: State Board [Board]
 generations = do 
     board <- generation 
