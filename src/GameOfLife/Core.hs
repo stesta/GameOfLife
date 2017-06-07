@@ -22,7 +22,7 @@ neighbors (x,y) = [(x',y') | x' <- [x-1..x+1], y' <- [y-1..y+1], (x',y') /= (x,y
 
 --------------------------------------------------------------------------------
 aliveNeighborCount :: Board -> Cell -> Int
-aliveNeighborCount board cell = length . filter (isAlive board) . neighbors $ cell 
+aliveNeighborCount board = length . filter (isAlive board) . neighbors 
 
 
 --------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ generation = do
         livingSurvivors = filter (liveOrDie board) board
         newBirths = filter (liveOrDie board) deadNeighbors
         board' = livingSurvivors ++ newBirths
-    put (board')
+    put board'
     return board 
 
 

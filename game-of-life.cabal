@@ -20,7 +20,8 @@ executable game-of-life
                   -fno-warn-orphans -fno-warn-unused-do-bind            
   other-modules:
     Application,
-    Site
+    Site,
+    GameOfLife.Core
 
   build-depends:
     base,

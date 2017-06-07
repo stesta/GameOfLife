@@ -3,24 +3,24 @@ module Site where
 
 
 --------------------------------------------------------------------------------
+import           Application
 import           Control.Concurrent      (forkIO)
 import           Control.Exception       (finally)
 import           Control.Monad           (forever, unless)
+import           Control.Monad.State
 import qualified Data.ByteString         as B
 import qualified Data.ByteString.Char8   as BC
+import           Data.List
+import qualified Data.Text               as T
+import           GameOfLife.Core         
 import qualified Network.WebSockets      as WS
 import qualified Network.WebSockets.Snap as WS
-import           Snap.Core               (Snap)
 import qualified Snap.Core               as Snap
-import qualified Snap.Http.Server        as Snap
+import           Snap.Snaplet
+import           Snap.Snaplet.Heist
 import qualified Snap.Util.FileServe     as Snap
 import qualified System.IO               as IO
 import qualified System.Process          as Process
-import Application
-import Data.ByteString (ByteString)
-import Snap.Snaplet
-import Snap.Snaplet.Heist
-import Snap.Util.FileServe
 
 
 --------------------------------------------------------------------------------
@@ -28,14 +28,43 @@ siteInit :: SnapletInit App App
 siteInit = makeSnaplet "app" "An snaplet example application." Nothing $ do
     h <- nestSnaplet "" heist $ heistInit "templates"
     addRoutes [ ("/", render "index.tpl")
-              , ("test", render "text.tpl")
+              , ("test", render "test.tpl")
               , ("console", render "console.tpl")
               , ("console/:shell", console)
-              , ("",  serveDirectory "assets")
+              , ("gameofLife", render "gameOfLife.tpl")
+              , ("gameOfLife/start", gameOfLife)
+              , ("",  Snap.serveDirectory "assets")
               ]
     return $ App h
 
 
+-- | Game Of Life
+--------------------------------------------------------------------------------
+gameOfLife :: AppHandler () 
+gameOfLife = WS.runWebSocketsSnap gameOfLifeApp 
+
+
+--------------------------------------------------------------------------------
+gameOfLifeApp :: WS.ServerApp
+gameOfLifeApp pending = do 
+    conn <- WS.acceptRequest pending
+    let game = evalState generations [(1,0),(2,0),(3,0)]
+    forever $ do
+        msg <- WS.receiveData conn
+        let g = read $ T.unpack msg :: Int
+            response = boardToJsonArray $ game!!g
+        WS.sendTextData conn $ "[" `T.append` response `T.append` "]\n"
+
+
+--------------------------------------------------------------------------------
+boardToJsonArray :: Board -> T.Text
+boardToJsonArray xs =
+    T.pack $ intercalate "," $ map fmt xs 
+    where
+        fmt (a,b) = "[" ++ show a ++ "," ++ show b ++ "]"
+
+
+-- | Console  
 --------------------------------------------------------------------------------
 console :: AppHandler ()
 console = do
