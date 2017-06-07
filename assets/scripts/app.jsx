@@ -9,7 +9,15 @@ class GameBoard extends React.Component {
 
     componentDidMount() {
         var self = this;
-        var ws = new WebSocket('ws://localhost:8000/gameoflife');
+        var loc = window.location, new_uri;
+        if (loc.protocol === "https:") {
+            new_uri = "wss:";
+        } else {
+            new_uri = "ws:";
+        }
+        new_uri += "//" + loc.host;
+        new_uri += loc.pathname + "gameoflife";
+        var ws = new WebSocket(new_uri);
 
         ws.onerror = (event) => {
             self.setState({ board: 'WebSockets error: ' + event.data });
