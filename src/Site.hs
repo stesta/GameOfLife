@@ -28,11 +28,9 @@ siteInit :: SnapletInit App App
 siteInit = makeSnaplet "app" "An snaplet example application." Nothing $ do
     h <- nestSnaplet "" heist $ heistInit "templates"
     addRoutes [ ("/", render "index.tpl")
-              , ("test", render "test.tpl")
+              , ("gameoflife", gameOfLife)
               , ("console", render "console.tpl")
               , ("console/:shell", console)
-              , ("gameofLife", render "gameOfLife.tpl")
-              , ("gameOfLife/start", gameOfLife)
               , ("",  Snap.serveDirectory "assets")
               ]
     return $ App h

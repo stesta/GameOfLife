@@ -6,7 +6,7 @@ function updateDisplay(text, callback) {
 }
 
 $(document).ready(function () {
-    var uri = 'ws://localhost:8000/gameOfLife/start';
+    var uri = 'ws://localhost:8000/gameoflife';
     var ws = new WebSocket(uri);
     var counter = 0;
 
