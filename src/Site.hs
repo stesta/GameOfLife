@@ -4,23 +4,16 @@ module Site where
 
 --------------------------------------------------------------------------------
 import           Application
-import           Control.Concurrent      (forkIO)
-import           Control.Exception       (finally)
-import           Control.Monad           (forever, unless)
+import           Control.Monad           (forever)
 import           Control.Monad.State
-import qualified Data.ByteString         as B
-import qualified Data.ByteString.Char8   as BC
 import           Data.List
 import qualified Data.Text               as T
 import           GameOfLife.Core         
 import qualified Network.WebSockets      as WS
 import qualified Network.WebSockets.Snap as WS
-import qualified Snap.Core               as Snap
 import           Snap.Snaplet
-import           Snap.Snaplet.Heist
-import qualified Snap.Util.FileServe     as Snap
-import qualified System.IO               as IO
-import qualified System.Process          as Process
+import           Snap.Snaplet.Heist      
+import           Snap.Util.FileServe 
 
 
 --------------------------------------------------------------------------------
@@ -29,9 +22,7 @@ siteInit = makeSnaplet "app" "An snaplet example application." Nothing $ do
     h <- nestSnaplet "" heist $ heistInit "templates"
     addRoutes [ ("/", render "index.tpl")
               , ("gameoflife", gameOfLife)
-              , ("console", render "console.tpl")
-              , ("console/:shell", console)
-              , ("",  Snap.serveDirectory "assets")
+              , ("",  serveDirectory "assets")
               ]
     return $ App h
 
@@ -60,44 +51,3 @@ boardToJsonArray xs =
     T.pack $ intercalate "," $ map fmt xs 
     where
         fmt (a,b) = "[" ++ show a ++ "," ++ show b ++ "]"
-
-
--- | Console  
---------------------------------------------------------------------------------
-console :: AppHandler ()
-console = do
-    Just shell <- Snap.getParam "shell"
-    WS.runWebSocketsSnap $ consoleApp $ BC.unpack shell
-
-
---------------------------------------------------------------------------------
-consoleApp :: String -> WS.ServerApp
-consoleApp shell pending = do
-    (stdin, stdout, stderr, phandle) <- Process.runInteractiveCommand shell
-    conn                             <- WS.acceptRequest pending
-
-    _ <- forkIO $ copyHandleToConn stdout conn
-    _ <- forkIO $ copyHandleToConn stderr conn
-    _ <- forkIO $ copyConnToHandle conn stdin
-
-    exitCode <- Process.waitForProcess phandle
-    putStrLn $ "consoleApp ended: " ++ show exitCode
-
-
---------------------------------------------------------------------------------
-copyHandleToConn :: IO.Handle -> WS.Connection -> IO ()
-copyHandleToConn h c = do
-    bs <- B.hGetSome h 1024
-    unless (B.null bs) $ do
-        putStrLn $ "> " ++ show bs
-        WS.sendTextData c bs
-        copyHandleToConn h c
-
-
---------------------------------------------------------------------------------
-copyConnToHandle :: WS.Connection -> IO.Handle -> IO ()
-copyConnToHandle c h = flip finally (IO.hClose h) $ forever $ do
-    bs <- WS.receiveData c
-    putStrLn $ "< " ++ show bs
-    B.hPutStr h bs
-    IO.hFlush h
