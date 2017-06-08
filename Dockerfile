@@ -1,10 +1,27 @@
 FROM  haskell
 
-WORKDIR /opt/server
+# create our src and bin directories and 
+# setup src to be our working directory
+RUN mkdir -p /opt/game-of-life/src
+RUN mkdir -p /opt/game-of-life/bin
+WORKDIR /opt/game-of-life/src
 
-# Add and Install Application Code
-COPY . /opt/server
-RUN stack setup 
-RUN stack build --copy-bins
+# setup our PATH for the bin directory
+ENV PATH "$PATH:/opt/game-of-life/bin"
 
-CMD ["game-of-life","-p","5000"]
+# Install GHC using stack, based on the stack.yaml file.
+COPY ./stack.yaml /opt/game-of-life/src/stack.yaml
+RUN stack --no-terminal setup
+
+# Install all dependencies in the .cabal file.
+COPY ./game-of-life.cabal /opt/game-of-life/src/game-of-life.cabal
+RUN stack --no-terminal test --only-dependencies
+
+# Build application
+COPY . /opt/game-of-life/src
+RUN stack --no-terminal build
+
+# Install application binaries to /opt/game-of-life/bin.
+RUN stack --no-terminal --local-bin-path /opt/game-of-life/bin install
+
+CMD /opt/game-of-life/bin/game-of-life -p $PORT
