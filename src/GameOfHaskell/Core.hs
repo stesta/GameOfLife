@@ -1,4 +1,4 @@
-module GameOfLife.Core where
+module GameOfHaskell.Core where
 
 --------------------------------------------------------------------------------
 import Control.Monad.State
@@ -28,8 +28,8 @@ aliveNeighborCount board = length . filter (isAlive board) . neighbors
 --------------------------------------------------------------------------------
 liveOrDie :: Board -> Cell -> Bool
 liveOrDie board cell 
-    | alive && ns == 2     = True
-    | alive && ns == 3     = True
+    | alive && ns     == 2 = True
+    | alive && ns     == 3 = True
     | not alive && ns == 3 = True
     | otherwise            = False 
     where 
@@ -42,10 +42,7 @@ generation :: State Board Board
 generation = do 
     board <- get
     let deadNeighbors = nub $ filter (not . isAlive board) $ concatMap neighbors board
-        livingSurvivors = filter (liveOrDie board) board
-        newBirths = filter (liveOrDie board) deadNeighbors
-        board' = livingSurvivors ++ newBirths
-    put board'
+    put $ filter (liveOrDie board) $ board ++ deadNeighbors
     return board 
 
 

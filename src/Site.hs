@@ -8,7 +8,7 @@ import           Control.Monad           (forever)
 import           Control.Monad.State
 import           Data.List
 import qualified Data.Text               as T
-import           GameOfLife.Core         
+import           GameOfHaskell.Core         
 import qualified Network.WebSockets      as WS
 import qualified Network.WebSockets.Snap as WS
 import           Snap.Snaplet

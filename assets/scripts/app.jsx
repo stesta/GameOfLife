@@ -3,57 +3,77 @@ class GameBoard extends React.Component {
         super(props);
         this.state = {
             counter: 0,
-            board: ''
+            board: '',
+            nextGenerationDelay: 200,
+            running: false
         };
     }
 
-    componentDidMount() {
-        var self = this;
-        var loc = window.location, new_uri;
-        if (loc.protocol === "https:") {
-            new_uri = "wss:";
-        } else {
-            new_uri = "ws:";
+    getWebsocketUri() {
+        var loc = window.location;
+        var wsUri = loc.protocol === "https:" ? "wss:" : "ws:";
+        wsUri += "//" + loc.host;
+        wsUri += loc.pathname + "gameoflife";
+
+        return wsUri;
+    }
+
+    nextGeneration(ws) {
+        setTimeout(() => {
+            ws.send(self.state.counter);
+            self.setState({ counter: self.state.counter+1 });
+        }, self.state.nextGenerationDelay);
+    }
+
+    drawBoard() {
+
+    }
+
+    startGame() {
+        if (self.state.running === false)
+        {
+            var self = this;
+            self.setState({ running: true });
+            var ws = new WebSocket(getWebsocketUri());
+
+            ws.onerror = (event) => {
+                self.setState({ 
+                    board: 'WebSockets error: ' + event.data,
+                    running: false
+                });
+            };
+
+            ws.onopen = () => {
+                self.setState({ board: 'WebSockets connection successful!' });
+                nextGeneration(ws);
+            };
+
+            ws.onclose = () => {
+                self.setState({ 
+                    board: 'WebSockets connection closed.',
+                    running: false
+                });
+            };
+
+            ws.onmessage = (event) => {
+                self.setState({ board: event.data });
+                nextGeneration(ws);
+            };
         }
-        new_uri += "//" + loc.host;
-        new_uri += loc.pathname + "gameoflife";
-        var ws = new WebSocket(new_uri);
+    }
 
-        ws.onerror = (event) => {
-            self.setState({ board: 'WebSockets error: ' + event.data });
-        };
-
-        ws.onopen = () => {
-            self.setState({ board: 'WebSockets connection successful!' });
-
-            setTimeout(() => {
-                ws.send(self.state.counter);
-                self.setState({ counter: self.state.counter+1 });
-            }, 200);
-        };
-
-        ws.onclose = () => {
-            self.setState({ board: 'WebSockets connection closed.' });
-        };
-
-        ws.onmessage = (event) => {
-            self.setState({ board: event.data });
-            
-            setTimeout(() => {
-                ws.send(self.state.counter);
-                self.setState({ counter: self.state.counter+1 });
-            }, 200);
-        };
+    componentDidMount() {
+        startGame();
     }
 
     render() {
         return (
-            <div>{this.state.board}</div>
+            <canvas id="board"></canvas>
         );
     }
 };
 
 ReactDOM.render(
     <GameBoard />,
-    document.getElementById('board')
+    document.getElementById('board-container')
 );

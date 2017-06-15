@@ -1,0 +1,58 @@
+name:                game-of-haskell
+version:             0.1
+synopsis:            Conway's Game of Life (Haskell)
+description:         Conway's Game of Life implemented with Haskell, Snap, React and Websockets
+license:             BSD3
+license-file:        LICENSE
+homepage:            https://github.com/stesta/GameOfHaskell#readme
+author:              Steve Testa <steve@testasoftware.com>
+maintainer:          Steve Testa <steve@testasoftware.com>
+stability:           Experimental
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.10
+extra-Source-Files:  README.md
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     GameOfHaskell.Core
+  build-depends:       base
+                     , mtl
+  default-language:    Haskell2010
+
+executable game-of-haskell
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  ghc-options:         -threaded -Wall -fwarn-tabs -funbox-strict-fields -O2 -fno-warn-orphans -fno-warn-unused-do-bind            
+  other-modules:       Application
+                     , Site
+                     , GameOfHaskell.Core
+  build-depends:       base
+                     , bytestring
+                     , containers
+                     , heist
+                     , lens
+                     , map-syntax
+                     , monad-control
+                     , mtl
+                     , process
+                     , snap
+                     , snap-core
+                     , snap-server
+                     , text
+                     , time
+                     , websockets
+                     , websockets-snap
+                     , xmlhtml
+  default-language:    Haskell2010
+
+test-suite game-of-haskell-test
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      test
+  main-is:             Spec.hs
+  build-depends:       base
+                     , game-of-haskell
+                     , hspec
+                     , mtl
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
