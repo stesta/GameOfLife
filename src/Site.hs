@@ -6,9 +6,10 @@ module Site where
 import           Application
 import           Control.Monad           (forever)
 import           Control.Monad.State
-import           Data.List
+import           Data.Aeson
 import qualified Data.Text               as T
 import           GameOfHaskell.Core         
+import           GameOfHaskell.Patterns     
 import qualified Network.WebSockets      as WS
 import qualified Network.WebSockets.Snap as WS
 import           Snap.Snaplet
@@ -27,27 +28,22 @@ siteInit = makeSnaplet "app" "An snaplet example application." Nothing $ do
     return $ App h
 
 
--- | Game Of Life
+-- | Game of Life handler
 --------------------------------------------------------------------------------
 gameOfLife :: AppHandler () 
 gameOfLife = WS.runWebSocketsSnap gameOfLifeApp 
 
 
+-- | Game of Life server app
+-- set an initial board state and continually listen for
+-- the next msg::Int (corresponds to a board generation #) 
+-- sends back to the client the requested board via JSON array
 --------------------------------------------------------------------------------
 gameOfLifeApp :: WS.ServerApp
 gameOfLifeApp pending = do 
     conn <- WS.acceptRequest pending
-    let game = evalState generations [(1,0),(2,0),(3,0)]
+    let game = evalState generations $ (translatePattern (10,1) glider) ++ (blinker)
     forever $ do
         msg <- WS.receiveData conn
         let g = read $ T.unpack msg :: Int
-            response = boardToJsonArray $ game!!g
-        WS.sendTextData conn $ "[" `T.append` response `T.append` "]\n"
-
-
---------------------------------------------------------------------------------
-boardToJsonArray :: Board -> T.Text
-boardToJsonArray xs =
-    T.pack $ intercalate "," $ map fmt xs 
-    where
-        fmt (a,b) = "[" ++ show a ++ "," ++ show b ++ "]"
+        WS.sendTextData conn $ encode $ game!!g

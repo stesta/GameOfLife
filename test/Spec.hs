@@ -1,12 +1,13 @@
 --------------------------------------------------------------------------------
 import Test.Hspec
-import GameOfLife.Core
+import GameOfHaskell.Core
+import GameOfHaskell.Patterns
 import Control.Monad.State
 import Data.List
 
 main :: IO ()
 main = hspec $ do
-  let game = evalState generations [(1,0),(2,0),(3,0)]
+  let game = evalState generations blinker
 
   describe "blinker" $ do 
     let phase1 board = (1, 0) `elem` board 

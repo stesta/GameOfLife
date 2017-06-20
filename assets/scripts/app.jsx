@@ -27,10 +27,6 @@ class GameBoard extends React.Component {
         }, this.state.nextGenerationDelay);
     }
 
-    drawBoard() {
-
-    }
-
     startGame() {
         var self = this;
         
@@ -48,6 +44,8 @@ class GameBoard extends React.Component {
 
             ws.onopen = () => {
                 self.setState({ board: 'WebSockets connection successful!' });
+                this.drawGrid();
+                
                 self.nextGeneration(ws);
             };
 
@@ -90,7 +88,7 @@ class GameBoard extends React.Component {
 
         for (var j = 1; j < 400; j++) { 
         for (var k = 1; k < 400; k++) {
-            var elem = [j-5,k-5]
+            var elem = [j,k]
             ctx.fillStyle = '#333333';
             ctx.lineWidth = 1;
             ctx.strokeStyle = '#999999';
@@ -108,7 +106,10 @@ class GameBoard extends React.Component {
 
     render() {
         return (
-            <canvas id="board"></canvas>
+            <div>
+                <div>Generation: {this.state.counter}</div>
+                <canvas id="board"></canvas>
+            </div>
         );
     }
 };
