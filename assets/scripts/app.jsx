@@ -1,22 +1,43 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import _ from 'lodash';
+import { cartesian } from '/scripts/utils.js';
 
 class GameBoard extends React.Component {
     constructor(props) {
         super(props);
+
         this.state = {
             counter: 0,
             board: [],
             nextGenerationDelay: 0,
             running: false,
-            boardWidth: 400,
-            boardHeight: 400
+            width: 500,
+            height: 500,
+            cellSize: 5
         };
     }
 
+    componentDidMount() {
+        this.cells = cartesian(_.range(1,100), _.range(1,100));
+
+        this.container = document.getElementById('board-container');
+        
+        this.canvas = document.getElementById('board');
+        this.canvas.height = this.state.height;
+        this.canvas.width = this.state.width;
+        
+        this.context = this.canvas.getContext('2d');
+        this.context.strokeStyle = '#eeeeee';
+        this.context.fillStyle = '#333333';
+        this.context.lineWidth = .5;
+
+        this.startGame();
+    }
+
     getWebsocketUri() {
-        var loc = window.location;
-        var wsUri = loc.protocol === "https:" ? "wss:" : "ws:";
+        let loc = window.location;
+        let wsUri = loc.protocol === "https:" ? "wss:" : "ws:";
         wsUri += "//" + loc.host;
         wsUri += loc.pathname + "gameoflife";
 
@@ -31,12 +52,12 @@ class GameBoard extends React.Component {
     }
 
     startGame() {
-        var self = this;
+        let self = this;
         
         if (self.state.running === false)
         {
             self.setState({ running: true });
-            var ws = new WebSocket(self.getWebsocketUri());
+            let ws = new WebSocket(self.getWebsocketUri());
 
             ws.onerror = (event) => {
                 self.setState({ 
@@ -48,7 +69,6 @@ class GameBoard extends React.Component {
             ws.onopen = () => {
                 self.setState({ board: 'WebSockets connection successful!' });
                 this.drawGrid();
-                
                 self.nextGeneration(ws);
             };
 
@@ -60,74 +80,43 @@ class GameBoard extends React.Component {
             };
 
             ws.onmessage = (event) => {
-                var b = JSON.parse(event.data);
+                let b = JSON.parse(event.data);
                 self.setState({ board: b });
                 this.drawGrid();
-
                 self.nextGeneration(ws);
-                
             };
         }
     }
 
-    searchForArray(haystack, needle){
-        var i, j, current;
-        for(i = 0; i < haystack.length; ++i){
-            if(needle.length === haystack[i].length){
-            current = haystack[i];
-            for(j = 0; j < needle.length && needle[j] === current[j]; ++j);
-            if(j === needle.length)
-                return i;
-            }
-        }
-        return -1;
+    resetCanvas() {
+        let canvasRatio = this.canvas.height / this.canvas.width;
+        let windowRatio = window.innerHeight / window.innerWidth;
+        let width = windowRatio < canvasRatio ? window.innerHeight / canvasRatio : window.innerWidth;
+        let height = windowRatio < canvasRatio ? window.innerHeight : window.innerWidth * canvasRatio;
+        this.canvas.style.width = width + 'px';
+        this.canvas.style.height = height + 'px';
+        
+        this.context.clearRect(0, 0, this.state.height, this.state.width);
     }
 
     drawGrid() { 
-        var rectSize = 5;
-        var canvasHeight = 500;
-        var canvasWidth = 500;
-        var c = document.getElementById('board');
-            c.height = canvasHeight;
-            c.width = canvasWidth;
+        this.resetCanvas();
 
-        var canvasRatio = c.height / c.width;
-        var windowRatio = window.innerHeight / window.innerWidth;
-        var width;
-        var height;
-
-        if (windowRatio < canvasRatio) {
-            height = window.innerHeight;
-            width = height / canvasRatio;
-        } else {
-            width = window.innerWidth;
-            height = width * canvasRatio;
-        }
-
-        c.style.width = width + 'px';
-        c.style.height = height + 'px';
-
-        var ctx = c.getContext('2d');
-            ctx.clearRect(0, 0, canvasHeight, canvasWidth);
-
-        for (var j = 1; j <= (canvasHeight/rectSize); j++) { 
-        for (var k = 1; k <= (canvasWidth/rectSize); k++) {
-            var elem = [j-(canvasHeight/(rectSize*2)),k-(canvasWidth/(rectSize*2))]
-            ctx.fillStyle = '#333333';
-            ctx.lineWidth = .5;
-            ctx.strokeStyle = '#eeeeee';
-            ctx.strokeRect((j*rectSize)-1, (k*rectSize)-1, rectSize, rectSize); 
-            
-            if (this.searchForArray(this.state.board, elem) != -1) {
-                ctx.fillRect((j*rectSize)-1, (k*rectSize)-1, rectSize, rectSize);
-            }  
-        }}
+        // draw the grid
+        _.map(this.cells, (elem) => {
+            let x = (elem[0]*this.state.cellSize-1);
+            let y = (elem[1]*this.state.cellSize-1);
+            this.context.strokeRect(x, y, this.state.cellSize, this.state.cellSize); 
+        });
+        
+        // fill in live cells
+        _.map(this.state.board, (elem) => {
+            let x = (elem[0]*this.state.cellSize-1) + (this.state.height/2);
+            let y = (elem[1]*this.state.cellSize-1) + (this.state.width/2);
+            this.context.fillRect(x, y, this.state.cellSize, this.state.cellSize);
+        });
     }
-
-    componentDidMount() {
-        this.startGame();
-    }
-
+    
     render() {
         return (
             <div>

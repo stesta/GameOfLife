@@ -10,8 +10,9 @@
                 map: {
                     'plugin-babel':         'https://unpkg.com/systemjs-plugin-babel@latest/plugin-babel.js',
                     'systemjs-babel-build': 'https://unpkg.com/systemjs-plugin-babel@latest/systemjs-babel-browser.js',
-                    'react':                'https://unpkg.com/react@latest/dist/react.js',
-                    'react-dom':            'https://unpkg.com/react-dom@latest/dist/react-dom.js'
+                    'react':                'https://unpkg.com/react@latest/dist/react.min.js',
+                    'react-dom':            'https://unpkg.com/react-dom@latest/dist/react-dom.min.js',
+                    'lodash':               'https://unpkg.com/lodash@latest/lodash.min.js'
                 },
                 transpiler: 'plugin-babel',
                 meta: {
