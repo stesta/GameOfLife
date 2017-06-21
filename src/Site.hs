@@ -42,7 +42,7 @@ gameOfLife = WS.runWebSocketsSnap gameOfLifeApp
 gameOfLifeApp :: WS.ServerApp
 gameOfLifeApp pending = do 
     conn <- WS.acceptRequest pending
-    let game = evalState generations $ rPentomino
+    let game = evalState generations rPentomino
     forever $ do
         msg <- WS.receiveData conn
         let g = read $ T.unpack msg :: Int

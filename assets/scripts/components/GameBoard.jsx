@@ -17,15 +17,15 @@ const gb = (props) => {
             c.height = props.height;
             c.width = props.width;
 
-        var canvasRatio = c.height / c.width;
-        var windowRatio = window.innerHeight / window.innerWidth;
-        var width = windowRatio < canvasRatio ? window.innerHeight / canvasRatio : window.innerWidth;
-        var height = windowRatio < canvasRatio ? window.innerHeight : window.innerWidth * canvasRatio;
+        let canvasRatio = c.height / c.width;
+        let windowRatio = window.innerHeight / window.innerWidth;
+        let width = windowRatio < canvasRatio ? window.innerHeight / canvasRatio : window.innerWidth;
+        let height = windowRatio < canvasRatio ? window.innerHeight : window.innerWidth * canvasRatio;
 
         c.style.width = width + 'px';
         c.style.height = height + 'px';
 
-        var ctx = c.getContext('2d');
+        let ctx = c.getContext('2d');
             ctx.clearRect(0, 0, props.height, props.width);
 
         for (var j = 1; j <= (props.height/props.cellSize); j++) { 

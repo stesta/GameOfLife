@@ -1,10 +1,13 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 class GameBoard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             counter: 0,
             board: [],
-            nextGenerationDelay: 50,
+            nextGenerationDelay: 0,
             running: false,
             boardWidth: 400,
             boardHeight: 400
