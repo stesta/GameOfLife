@@ -4,7 +4,7 @@ class GameBoard extends React.Component {
         this.state = {
             counter: 0,
             board: [],
-            nextGenerationDelay: 200,
+            nextGenerationDelay: 50,
             running: false,
             boardWidth: 400,
             boardHeight: 400
@@ -81,17 +81,38 @@ class GameBoard extends React.Component {
     }
 
     drawGrid() { 
-        var rectSize = 10;
+        var rectSize = 5;
+        var canvasHeight = 500;
+        var canvasWidth = 500;
         var c = document.getElementById('board');
-        var ctx = c.getContext('2d');
-            ctx.clearRect(0, 0, 400, 400);
+            c.height = canvasHeight;
+            c.width = canvasWidth;
 
-        for (var j = 1; j < 400; j++) { 
-        for (var k = 1; k < 400; k++) {
-            var elem = [j,k]
+        var canvasRatio = c.height / c.width;
+        var windowRatio = window.innerHeight / window.innerWidth;
+        var width;
+        var height;
+
+        if (windowRatio < canvasRatio) {
+            height = window.innerHeight;
+            width = height / canvasRatio;
+        } else {
+            width = window.innerWidth;
+            height = width * canvasRatio;
+        }
+
+        c.style.width = width + 'px';
+        c.style.height = height + 'px';
+
+        var ctx = c.getContext('2d');
+            ctx.clearRect(0, 0, canvasHeight, canvasWidth);
+
+        for (var j = 1; j <= (canvasHeight/rectSize); j++) { 
+        for (var k = 1; k <= (canvasWidth/rectSize); k++) {
+            var elem = [j-(canvasHeight/(rectSize*2)),k-(canvasWidth/(rectSize*2))]
             ctx.fillStyle = '#333333';
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = '#999999';
+            ctx.lineWidth = .5;
+            ctx.strokeStyle = '#eeeeee';
             ctx.strokeRect((j*rectSize)-1, (k*rectSize)-1, rectSize, rectSize); 
             
             if (this.searchForArray(this.state.board, elem) != -1) {

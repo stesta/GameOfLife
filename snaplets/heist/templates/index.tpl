@@ -1,13 +1,4 @@
 <apply template="base">
-    <bind tag="sidebar">
-      <h2>Game of Haskell</h2>
-      <p>
-        Conway's Game of Life 
-      </p>
-      <p>
-        For more information regarding the construction of this application please see my <a href="#">Building a Web Application in Haskell</a> blog post series.
-      </p>
-    </bind>
 
     <bind tag="main">
       <div id="board-container"></div> 
