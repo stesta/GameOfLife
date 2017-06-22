@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import _ from 'lodash';
-import { cartesian } from '/scripts/utils.js';
+import { cartesian, absoluteSocketPath } from '/scripts/utils.js';
 
 class GameBoard extends React.Component {
     constructor(props) {
@@ -35,15 +35,6 @@ class GameBoard extends React.Component {
         this.startGame();
     }
 
-    getWebsocketUri() {
-        let loc = window.location;
-        let wsUri = loc.protocol === "https:" ? "wss:" : "ws:";
-        wsUri += "//" + loc.host;
-        wsUri += loc.pathname + "gameoflife";
-
-        return wsUri;
-    }
-
     nextGeneration(ws) {
         setTimeout(() => {
             ws.send(this.state.counter);
@@ -57,7 +48,7 @@ class GameBoard extends React.Component {
         if (self.state.running === false)
         {
             self.setState({ running: true });
-            let ws = new WebSocket(self.getWebsocketUri());
+            let ws = new WebSocket(absoluteSocketPath("gameoflife"));
 
             ws.onerror = (event) => {
                 self.setState({ 
