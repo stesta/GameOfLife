@@ -1,8 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import _ from 'lodash';
-import { cartesian, absoluteSocketPath } from '/scripts/utils.js';
-
 class GameBoard extends React.Component {
     constructor(props) {
         super(props);
@@ -18,8 +13,24 @@ class GameBoard extends React.Component {
         };
     }
 
+    f = (a, b) =>
+        [].concat(...a.map(a =>
+            b.map(b =>
+                [].concat(a, b))));
+
+    cartesian = (a, b, ...c) => b ? this.cartesian(this.f(a, b), ...c) : a;
+
+    absoluteSocketPath = (relativeSocketPath) => {
+        let loc = window.location;
+        let wsUri = loc.protocol === "https:" ? "wss:" : "ws:";
+        wsUri += "//" + loc.host;
+        wsUri += loc.pathname + relativeSocketPath;
+
+        return wsUri;
+    };
+
     componentDidMount() {
-        this.cells = cartesian(_.range(1,100), _.range(1,100));
+        this.cells = this.cartesian(_.range(1,100), _.range(1,100));
 
         this.container = document.getElementById('board-container');
         
@@ -48,7 +59,7 @@ class GameBoard extends React.Component {
         if (self.state.running === false)
         {
             self.setState({ running: true });
-            let ws = new WebSocket(absoluteSocketPath("gameoflife"));
+            let ws = new WebSocket(this.absoluteSocketPath("gameoflife"));
 
             ws.onerror = (event) => {
                 self.setState({ 
@@ -119,6 +130,6 @@ class GameBoard extends React.Component {
 };
 
 ReactDOM.render(
-    <GameBoard />,
+    React.createElement(GameBoard, null, null),
     document.getElementById('board-container')
 );
